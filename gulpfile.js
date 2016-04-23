@@ -14,17 +14,18 @@ var config = {
   devBaseUrl: 'http://localhost',
   paths: {
     html: './app/*.html',
-    js: './app/js/**/*.js',
+    js: ['./app/src/**/*.js', './app/src/**/*.jsx'],
     css: [
           'node_modules/bootstrap/dist/css/bootstrap.min.css',
           'node_modules/bootstrap/dist/css/bootstrap-theme.min.css'
       ],
+    images: './app/src/images/*',
     dist: './app/dist',
-    mainJs: './app/js/main.js'
+    mainJs: './app/src/main.js'
   }
 }
 
-gulp.task('connect', function() {``
+gulp.task('connect', function() {
   connect.server({
     root: ['app/dist'],
     port: config.port,
@@ -34,8 +35,8 @@ gulp.task('connect', function() {``
 });
 
 gulp.task('open', ['connect'], function() {
-  gulp.src('app/dist/index.html')
-    .pipe(open({ uri: config.devBaseUrl + ':' + config.port + '/' }));
+  // gulp.src('app/dist/index.html')
+  //   .pipe(open({ uri: config.devBaseUrl + ':' + config.port + '/' }));
 });
 
 gulp.task('html', function() {
@@ -60,6 +61,16 @@ gulp.task('css', function() {
     .pipe(gulp.dest(config.paths.dist + '/css'));
 });
 
+gulp.task('images', function () {
+    gulp.src(config.paths.images)
+        .pipe(gulp.dest(config.paths.dist + '/images'))
+        .pipe(connect.reload());
+
+    //publish favicon
+    // gulp.src('./src/favicon.ico')
+    //     .pipe(gulp.dest(config.paths.dist));
+});
+
 gulp.task('lint', function() {
   return gulp.src(config.paths.js)
     .pipe(lint({config: '.eslintrc.json'}))
@@ -68,8 +79,9 @@ gulp.task('lint', function() {
 
 gulp.task('watch', function() {
   gulp.watch(config.paths.html, ['html']);
+  gulp.watch(config.paths.css, ['css']);
   gulp.watch(config.paths.js, ['js', 'lint']);
 });
 
-gulp.task('default', ['html', 'js', 'css', 'lint', 'open', 'watch']);
+gulp.task('default', ['html', 'js', 'css', 'images', 'lint', 'open', 'watch']);
 
